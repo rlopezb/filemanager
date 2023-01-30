@@ -8,9 +8,8 @@ import java.util.TreeSet;
  * This class implements the main functionality of the project.
  * With this class the user can list, create, delete and search files in a folder.
  * The folder can be specified in a constructor.
- * If none is specified, the class uses the working director as the default folder.
- * It has a default constructor with no parameters and a constructor with the folder as the only one parameter.
- * Then is has a method for each of the functionalities required in the specifications.
+ * If none is specified, the class uses the working director as the default folder and does not ignore case while sorting files.
+ * It has a method for each of the functionalities required by the specifications.
  * 
  * @author Rafael López Benavente
  * @version 0.0.1
@@ -18,13 +17,15 @@ import java.util.TreeSet;
 public class FileManager {
 	private static final String DEFAULT_PATH = ".";
 	private static final boolean DEFAULT_IGNORE_CASE = false;
-	
+
 	private File parent;
 	private boolean ignoreCase;
 
 	/*
-	 * DONE in sprint 1 Constructor with no arguments. Calls the constructor with
-	 * path argument using a default value in DEFAULT_PATH constant
+	 * DONE in sprint 1
+	 * 
+	 * Constructors with none or one argument. Calls the constructor with
+	 * path and ignore case arguments using default values in DEFAULT_PATH and DEFAULT_IGNORE_CASE constants
 	 */
 	public FileManager() throws FileNotFoundException {
 		this(DEFAULT_PATH, DEFAULT_IGNORE_CASE);
@@ -39,9 +40,14 @@ public class FileManager {
 	}
 
 	/*
-	 * DONE in sprint 1 Constructor with path as argument. Throws a
-	 * FileNotFoundException if: - the path does not exists, - it is not a folder, -
-	 * it is not readable or - it is not writable.
+	 * DONE in sprint 1
+	 * 
+	 * Constructor with path as argument. Throws a
+	 * FileNotFoundException if:
+	 *  - the path does not exists,
+	 *  - it is not a folder,
+	 *  - it is not readable or
+	 *  - it is not writable.
 	 */
 	public FileManager(String path, boolean ignoreCase) throws FileNotFoundException {
 		super();
@@ -66,7 +72,9 @@ public class FileManager {
 	}
 
 	/*
-	 * DONE in sprint 1 This function returns the absolute path spicified by the
+	 * DONE in sprint 1
+	 * 
+	 * This function returns the absolute path specified by the
 	 * user in the arguments. If the user does not specify a folder, the working
 	 * directory is selected as default in the constructor of this class.
 	 */
@@ -75,25 +83,23 @@ public class FileManager {
 	}
 
 	/*
-	 * DONE in sprint 1 This function lists the files of the selected folder in
+	 * DONE in sprint 1
+	 * 
+	 * This function lists the files of the selected folder in
 	 * ascending order. The output is indented for more clarity.
+	 * The folder names have an slash at the end.
 	 */
-	public boolean isIgnoreCase() {
-		return ignoreCase;
-	}
-
-	public void setIgnoreCase(boolean ignoreCase) {
-		this.ignoreCase = ignoreCase;
-	}
-
 	public String listFiles() {
-		// Here I use TreeSet class with default constructor.
-		// The order is the default comparator of the stored object.
-		// The default comparator for Strings is lexicographic order.
+
 		TreeSet<String> treeSetFiles;
 		if (isIgnoreCase()) {
+			// TreeSet class with constructor with Comparator as constructor.
+			// Invoked with a comparator provided by String class that ignore cases in Strings.
 			treeSetFiles = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 		} else {
+			// Here I use TreeSet class with default constructor.
+			// The order is the default comparator of the stored object.
+			// The default comparator for Strings is lexicographic case sensitive order. 
 			treeSetFiles = new TreeSet<>();
 		}
 		File[] files;
@@ -129,6 +135,23 @@ public class FileManager {
 			return message;
 		}
 	}
+	
+	// Done in sprint 1 Getters and setters
+	public File getParent() {
+		return parent;
+	}
+
+	public void setParent(File parent) {
+		this.parent = parent;
+	}
+
+	public boolean isIgnoreCase() {
+		return ignoreCase;
+	}
+
+	public void setIgnoreCase(boolean ignoreCase) {
+		this.ignoreCase = ignoreCase;
+	}
 
 	// TODO in sprint 2
 	public String addFile() {
@@ -144,4 +167,6 @@ public class FileManager {
 	public String searchFile() {
 		return "TODO in sprint 2";
 	}
+	
+
 }

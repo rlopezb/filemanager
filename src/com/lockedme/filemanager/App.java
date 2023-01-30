@@ -20,8 +20,9 @@ public class App {
 	private static final int MAIN_MENU_LIST_FILES = 1;
 	private static final int MAIN_MENU_EXIT = 2;
 	
-	// Ignore case option
+	// Default options
 	private static final boolean DEFAULT_IGNORE_CASE = true;
+	private static final String DEFAULT_PATH = ".";
 	
 	public static void main(String[] args) {
 		// Print some information regarding the company and the developer
@@ -39,13 +40,13 @@ public class App {
 			path = args[0];
 		}
 
-		// Open file manager
+		// Create file manager object
 		FileManager fileManager = null;
 		try {
 			if (path == null) {
-				fileManager = new FileManager(DEFAULT_IGNORE_CASE);
+				fileManager = new FileManager(DEFAULT_PATH, DEFAULT_IGNORE_CASE);
 			} else {
-				fileManager = new FileManager(path,DEFAULT_IGNORE_CASE);
+				fileManager = new FileManager(path, DEFAULT_IGNORE_CASE);
 			}
 		} catch (FileNotFoundException ex) {
 			System.out.println("Cannot run program in " + (path == null ? "current directory." : "path '" + path + "'."));
