@@ -5,11 +5,10 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 /*
- * Class to interact with the user using Scanner
- * I use ArraList for the options because it preserves the insertion order
+ * Class to interact with the user using Scanner.
  * 
  * @author Rafael López Benavente
- * @version 0.0.1
+ * @version 0.0.2
  */
 public class UserInput {
 	/*
@@ -17,34 +16,28 @@ public class UserInput {
 	 * avoid unexpected side-effects
 	 */
 	private static final Scanner SCANNER = new Scanner(System.in);
-	private String message;
 	// Here I use TreeMap class with default constructor.
 	// The order in the Map is the default comparator of the key object.
 	// The default comparator for Integer is numeric ascending order.
-	// Using a Map gives the possibility of reorganize the numbers in the option list easily
+	// Using a Map gives the possibility of reorganize the numbers in the option
+	// list easily
 	private TreeMap<Integer, String> options;
 
 	/*
-	 * DONE in sprint 1
-	 * 
-	 * Constructor with parameters.
-	 * No default constructor.
+	 * Constructor with parameters. No default constructor.
 	 */
-	public UserInput(String message, TreeMap<Integer, String> options) {
+	public UserInput(TreeMap<Integer, String> options) {
 		super();
-		this.setMessage(message);
 		this.setOptions(options);
 	}
 
 	/*
-	 * DONE in sprint 1
-	 * 
-	 * This function ask the user to select an option with Scanner.
-	 * The selected option is returned as an Integer. It checks if the user input is
-	 * valid: - it must be possible to parse it to an Integer and - it should be
-	 * between 1 and the size of the list options
+	 * This function ask the user to select an option with Scanner. The selected
+	 * option is returned as an Integer. It checks if the user input is valid:
+	 *  - it must be possible to parse it to an Integer and
+	 *  - it should be in the key set of the options
 	 */
-	public Integer getOption() {
+	public Integer getOption(String message) {
 		System.out.println(message);
 		for (Entry<Integer, String> option : options.entrySet()) {
 			System.out.println(option.getKey() + ".- " + option.getValue());
@@ -73,8 +66,30 @@ public class UserInput {
 	}
 
 	/*
-	 * DONE in sprint 1
-	 * 
+	 * Function to read from the user a String
+	 */
+	public String getString(String message) {
+		System.out.print(message);
+		return SCANNER.nextLine();
+	}
+
+	/*
+	 * Function to read a text from the user until a EOF tag specified in the
+	 * parameter until.
+	 */
+	public String getTextUntil(String message, String until) {
+		System.out.println(message);
+		String line;
+		StringBuilder text=new StringBuilder();
+		do {
+			line = SCANNER.nextLine();
+			text.append(line);
+			text.append(System.getProperty("line.separator"));
+		} while (!line.endsWith(until));
+		return text.substring(0, text.length() - until.length()-System.getProperty("line.separator").length());
+	}
+
+	/*
 	 * Getters and setters
 	 */
 	public TreeMap<Integer, String> getOptions() {
@@ -85,11 +100,4 @@ public class UserInput {
 		this.options = options;
 	}
 
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
 }
