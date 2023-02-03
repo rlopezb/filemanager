@@ -12,8 +12,9 @@ import java.util.Map.Entry;
  */
 public class UserInput {
 	/*
-	 * Scanner object defined as static final. Only one Scanner on System.in to
-	 * avoid unexpected side-effects
+	 * Scanner object defined as static final (class variable).
+	 * Only one Scanner on System.in to avoid unexpected side-effects
+	 * 
 	 */
 	private static final Scanner SCANNER = new Scanner(System.in);
 	// Here I use TreeMap class with default constructor.
@@ -24,7 +25,7 @@ public class UserInput {
 	private TreeMap<Integer, String> options;
 
 	/*
-	 * Constructor with parameters. No default constructor.
+	 * Constructor with options as parameter. No default constructor.
 	 */
 	public UserInput(TreeMap<Integer, String> options) {
 		super();
@@ -38,6 +39,7 @@ public class UserInput {
 	 *  - it should be in the key set of the options
 	 */
 	public Integer getOption(String message) {
+		// Print initial message and available options to user
 		System.out.println(message);
 		for (Entry<Integer, String> option : options.entrySet()) {
 			System.out.println(option.getKey() + ".- " + option.getValue());
@@ -47,6 +49,7 @@ public class UserInput {
 		do {
 			System.out.print("Enter an option: ");
 			try {
+				// Ask the user for input
 				selectedOption = Integer.valueOf(SCANNER.nextLine());
 			} catch (NumberFormatException ex) {
 				// Cannot read input as an Integer
@@ -66,7 +69,7 @@ public class UserInput {
 	}
 
 	/*
-	 * Function to read from the user a String
+	 * Function to read a String from the user
 	 */
 	public String getString(String message) {
 		System.out.print(message);
@@ -80,12 +83,15 @@ public class UserInput {
 	public String getTextUntil(String message, String until) {
 		System.out.println(message);
 		String line;
+		// StringBuilder to construct the final text
 		StringBuilder text=new StringBuilder();
 		do {
 			line = SCANNER.nextLine();
 			text.append(line);
 			text.append(System.getProperty("line.separator"));
+			// Exit if the line ends with specified tag
 		} while (!line.endsWith(until));
+		// Return text removing tag and last line separator
 		return text.substring(0, text.length() - until.length()-System.getProperty("line.separator").length());
 	}
 

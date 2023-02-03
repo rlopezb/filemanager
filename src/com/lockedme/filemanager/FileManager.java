@@ -19,9 +19,11 @@ import java.util.TreeSet;
  * @version 0.0.2
  */
 public class FileManager {
+	// Default values
 	private static final String DEFAULT_PATH = ".";
 	private static final boolean DEFAULT_IGNORE_CASE = false;
 
+	// Main folder and ignore case flag
 	private File parent;
 	private boolean ignoreCase;
 
@@ -82,12 +84,11 @@ public class FileManager {
 	 * Function to retrieve a list of files following a pattern. If the parameter
 	 * pattern is set to null, the function will return all files in the folder.
 	 */
-	private TreeSet<String> getFiles(String pattern) throws SecurityException, IOException {
+	private TreeSet<String> getFiles(String pattern) throws IOException {
 		TreeSet<String> treeSetFiles;
 		if (isIgnoreCase()) {
-			// TreeSet class with constructor with Comparator as constructor.
-			// Invoked with a comparator provided by String class that ignore cases in
-			// Strings.
+			// New TreeSet using a constructor with Comparator as parameter
+			// provided by String class that ignore cases.
 			treeSetFiles = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 		} else {
 			// Here I use TreeSet class with default constructor.
@@ -106,7 +107,6 @@ public class FileManager {
 			};
 		}
 		File[] files;
-		// May throw SecurityException
 		files = parent.listFiles(filter);
 		if (files == null) {
 			// Error accessing the folder due to file system permission or error
@@ -115,7 +115,7 @@ public class FileManager {
 		}
 		for (File file : files) {
 			if (file.isDirectory()) {
-				// If folder, add a trailing slash
+				// If folder, add a trailing slash for readability
 				treeSetFiles.add(file.getName() + "/");
 			} else {
 				treeSetFiles.add(file.getName());
@@ -133,15 +133,10 @@ public class FileManager {
 		TreeSet<String> treeSetFiles;
 		try {
 			treeSetFiles = getFiles(null);
-		} catch (SecurityException ex) {
-			// Cannot access the folder now
-			String error = "Cannot list files of folder '" + getWorkingDirectory() + "'.\n";
-			error = error + ex.getMessage();
-			return error;
-		} catch (IOException e) {
+		} catch (IOException ex) {
 			// Error accessing the folder due to file system permission or error
-			String error = "Cannot list files of folder '" + getWorkingDirectory() + "'.\n";
-			error = error + "Path name does not denote a directory or a file system error occured";
+			String error = "Cannot list files in folder '" + getWorkingDirectory() + "'.\n";
+			error = error + ex.getMessage();
 			return error;
 		}
 
@@ -157,21 +152,11 @@ public class FileManager {
 	}
 
 	/*
-	 * Function if a file does not already exists by name
+	 * Function that checks if a file already exists in the main folder
 	 */
-	public String exists(String name) {
+	public boolean exists(String name) {
 		File file = new File(getWorkingDirectory() + System.getProperty("file.separator") + name);
-		try {
-			if (!file.exists()) {
-				return null;
-			} else {
-				return "File '" + name + "' already exists in folder '" + getWorkingDirectory() + "'.";
-			}
-		} catch (SecurityException ex) {
-			String error = "Cannot create the file '" + name + "'.\n";
-			error = error + ex.getMessage();
-			return error;
-		}
+		return file.exists();
 	}
 
 	/*
@@ -181,18 +166,19 @@ public class FileManager {
 	 */
 	public String addFile(String name, String content) {
 		File file;
+		file = new File(getWorkingDirectory() + System.getProperty("file.separator") + name);
+		if (file.exists()) {
+			// File already exists
+			String error = "A file with name '" + name + "' already exists in '" + getWorkingDirectory() + "'.";
+			return error;
+		}
 		try {
-			file = new File(getWorkingDirectory() + System.getProperty("file.separator") + name);
-			if (file.exists()) {
-				// File already exists
-				String error = "A file with name '" + name + "' already exists in '" + getWorkingDirectory() + "'.";
-				return error;
-			}
+			// Open the file, write and close
 			FileWriter writer = new FileWriter(file);
 			writer.write(content);
 			writer.close();
 			return "File '" + name + "' created.";
-		} catch (SecurityException | IOException ex) {
+		} catch (IOException ex) {
 			// Cannot access the file now
 			String error = "Cannot create the file '" + name + "'.\n";
 			error = error + ex.getMessage();
@@ -206,44 +192,44 @@ public class FileManager {
 	 */
 	public String deletePath(String name) {
 		File path;
-		try {
-			path = new File(getWorkingDirectory() + File.separator + name);
-			if (!path.exists()) {
-				// Path does not exists
-				String error = "File or folder '" + name + "' does not exists in '" + getWorkingDirectory() + "'.";
-				return error;
-			}
-			if (!path.canWrite()) {
-				String error = "File or folder '" + name + "' is not writable.";
-				return error;
-			}
-			if (path.isDirectory()) {
-				if (path.list().length > 0) {
-					String error = "Cannot delete folder '" + name + "'.\n";
-					error = error + "Folder is not empty.";
-					return error;
-				}
-				if (path.delete()) {
-					return "Folder '" + name + "' deleted!";
-				} else {
-					// Cannot delete the folder
-					String error = "Cannot delete folder '" + name + "'.\n";
-					return error;
-				}
-			} else {
-				if (path.delete()) {
-					return "File '" + name + "' deleted.";
-				} else {
-					// Cannot delete the folder
-					String error = "Cannot delete File '" + name + "'.\n";
-					return error;
-				}
-			}
-		} catch (SecurityException ex) {
-			// Cannot access the file now
-			String error = "Cannot delete file or folder '" + name + "'.\n";
-			error = error + ex.getMessage();
+		path = new File(getWorkingDirectory() + File.separator + name);
+		if (!path.exists()) {
+			// Path does not exist
+			String error = "File or folder '" + name + "' does not exists in '" + getWorkingDirectory() + "'.";
 			return error;
+		}
+		if (!path.canWrite()) {
+			String error = "File or folder '" + name + "' is not writable.";
+			return error;
+		}
+		if (path.isDirectory()) {
+			// The path is a folder
+			if(path.list() == null) {
+				// Cannot list files in folder
+				String error = "Cannot list files in folder '" + name + "'.";
+				return error;
+			}
+			if (path.list().length > 0) {
+				// Folder is not empty
+				String error = "Cannot delete folder '" + name + "'.\n";
+				error = error + "Folder is not empty.";
+				return error;
+			}
+			if (path.delete()) {
+				return "Folder '" + name + "' deleted!";
+			} else {
+				// Cannot delete the folder
+				String error = "Cannot delete folder '" + name + "'.\n";
+				return error;
+			}
+		} else {
+			if (path.delete()) {
+				return "File '" + name + "' deleted.";
+			} else {
+				// Cannot delete the folder
+				String error = "Cannot delete file '" + name + "'.\n";
+				return error;
+			}
 		}
 	}
 
@@ -256,11 +242,6 @@ public class FileManager {
 		TreeSet<String> treeSetFiles;
 		try {
 			treeSetFiles = getFiles(pattern);
-		} catch (SecurityException ex) {
-			// Cannot access the folder now
-			String error = "Cannot list files of folder '" + getWorkingDirectory() + "'.\n";
-			error = error + ex.getMessage();
-			return error;
 		} catch (IOException e) {
 			// Error accessing the folder due to file system permission
 			String error = "Cannot list files of folder '" + getWorkingDirectory() + "'.\n";

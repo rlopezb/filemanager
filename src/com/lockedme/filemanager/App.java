@@ -15,6 +15,7 @@ public class App {
 	private static final int NO_ERROR = 0;
 	private static final int WRONG_ARGUMENTS = -1;
 	private static final int INCORRECT_PATH = -2;
+	private static final int RUNTIME_EXCEPTION = -3;
 
 	// Option numbers for main menu
 	private static final int MAIN_MENU_LIST_FILES = 1;
@@ -60,6 +61,10 @@ public class App {
 			System.out.println("Cannot run program in " + (path == null ? "current folder." : "path '" + path + "'."));
 			System.out.println(ex.getMessage());
 			System.exit(INCORRECT_PATH);
+		} catch (Exception ex) {
+			System.out.println("A runtime exception occurred.");
+			System.out.println(ex.getMessage());
+			System.exit(RUNTIME_EXCEPTION);
 		}
 		System.out.println("Working directory is: '" + fileManager.getWorkingDirectory() + "'.");
 		System.out.println();
@@ -71,56 +76,63 @@ public class App {
 		firstOptions.put(MAIN_MENU_EXIT, "Exit");
 		UserInput firstUserInput = new UserInput(firstOptions);
 		Integer firstOption = null;
-		do {
-			// Reading user input for first level menu
-			firstOption = firstUserInput.getOption("The available options are:");
-			switch (firstOption) {
-			case MAIN_MENU_LIST_FILES:
-				System.out.println(fileManager.listFiles());
-				break;
-			case MAIN_MENU_MANAGE_FILES:
-				// Enter second level menu to manage the files
-				TreeMap<Integer, String> secondOptions = new TreeMap<Integer, String>();
-				secondOptions.put(SECOND_MENU_ADD_FILE, "Add a file");
-				secondOptions.put(SECOND_MENU_DELETE_FILE, "Delete a file");
-				secondOptions.put(SECOND_MENU_SEARCH_FILES, "Search files");
-				secondOptions.put(SECOND_MENU_EXIT, "Back to the main menu");
-				UserInput secondUserInput = new UserInput(secondOptions);
-				Integer secondOption = null;
-				do {
-					// Reading user input for second level menu
-					secondOption = secondUserInput.getOption("The options for files management are:");
-					switch (secondOption) {
-					case SECOND_MENU_ADD_FILE:
-						String name = secondUserInput.getString("Enter the complete file name to create, please: ");
-						String result = fileManager.exists(name);
-						if (result != null) {
-							System.out.println(result);
-						} else {
-							String content = secondUserInput.getTextUntil("Enter the file content. To finish, enter '" + EOF_TAG + "' and the end.", EOF_TAG);
-							System.out.println(fileManager.addFile(name, content));
+		try {
+			do {
+				// Reading user input for first level menu
+				firstOption = firstUserInput.getOption("The available options are:");
+				switch (firstOption) {
+				case MAIN_MENU_LIST_FILES:
+					System.out.println(fileManager.listFiles());
+					break;
+				case MAIN_MENU_MANAGE_FILES:
+					// Enter second level menu to manage the files
+					TreeMap<Integer, String> secondOptions = new TreeMap<Integer, String>();
+					secondOptions.put(SECOND_MENU_ADD_FILE, "Add a file");
+					secondOptions.put(SECOND_MENU_DELETE_FILE, "Delete a file");
+					secondOptions.put(SECOND_MENU_SEARCH_FILES, "Search files");
+					secondOptions.put(SECOND_MENU_EXIT, "Back to the main menu");
+					UserInput secondUserInput = new UserInput(secondOptions);
+					Integer secondOption = null;
+					do {
+						// Reading user input for second level menu
+						secondOption = secondUserInput.getOption("The options for files management are:");
+						switch (secondOption) {
+						case SECOND_MENU_ADD_FILE:
+							String name = secondUserInput.getString("Enter the complete file name to create, please: ");
+							if (fileManager.exists(name)) {
+								System.out.println("File '" + name + "' already exists in folder '" + fileManager.getWorkingDirectory() + "'.");
+							} else {
+								String content = secondUserInput
+										.getTextUntil("Enter the file content. To finish, enter '" + EOF_TAG + "' and the end.", EOF_TAG);
+								System.out.println(fileManager.addFile(name, content));
+							}
+							break;
+						case SECOND_MENU_DELETE_FILE:
+							name = secondUserInput.getString("Enter the complete file or folder name to delete, please: ");
+							System.out.println(fileManager.deletePath(name));
+							break;
+						case SECOND_MENU_SEARCH_FILES:
+							name = secondUserInput.getString("Enter a regular expression, please: ");
+							System.out.println(fileManager.searchFiles(name));
+							break;
+						case SECOND_MENU_EXIT:
+							// Back to main menu
+							break;
 						}
-						break;
-					case SECOND_MENU_DELETE_FILE:
-						name = secondUserInput.getString("Enter the complete file or folder name to delete, please: ");
-						System.out.println(fileManager.deletePath(name));
-						break;
-					case SECOND_MENU_SEARCH_FILES:
-						name = secondUserInput.getString("Enter a regular expression, please: ");
-						System.out.println(fileManager.searchFiles(name));
-						break;
-					case SECOND_MENU_EXIT:
-						// Back to main menu
-						break;
-					}
-				} while (secondOption != SECOND_MENU_EXIT);
-				break;
-			case MAIN_MENU_EXIT:
-				// Exit the application
-				System.out.println("Bye bye!");
-				System.exit(NO_ERROR);
-				break;
-			}
-		} while (true);
+					} while (secondOption != SECOND_MENU_EXIT);
+					break;
+				case MAIN_MENU_EXIT:
+					// Exit the application normally
+					System.out.println("Bye bye!");
+					System.exit(NO_ERROR);
+					break;
+				}
+			} while (true);
+		} catch (Exception ex) {
+			// The application should not throw any exception.
+			System.out.println("A runtime exception occurred.");
+			System.out.println(ex.getMessage());
+			System.exit(RUNTIME_EXCEPTION);
+		}
 	}
 }
